@@ -1,4 +1,7 @@
-package test.project1.StringAnalyzers;
+package test.project1.stringanalyzers.impl;
+
+import test.project1.Constants.AnalyzerType;
+import test.project1.stringanalyzers.IDataAnalyzer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,10 +9,9 @@ import java.util.TreeSet;
 
 import static com.sun.org.apache.xalan.internal.lib.ExsltMath.abs;
 
-public class ClosestByLexicalAnalyzer implements IStringAnalayzer {
+public class ClosestByLexicalAnalyzer implements IDataAnalyzer<String> {
 
     private TreeSet<String> stringTree = new TreeSet();
-    final String StringAnalyzerName = "Lexical";
 
     private Collection<String> CompareStringsLexically(String text, String biggerText, String smallerText) {
         ArrayList<String> stringToReturn = new ArrayList<>();
@@ -27,12 +29,13 @@ public class ClosestByLexicalAnalyzer implements IStringAnalayzer {
         }
         return stringToReturn;
     }
-
-    public String GetName() {
-        return StringAnalyzerName;
+    @Override
+    public AnalyzerType getType() {
+        return AnalyzerType.lexical;
     }
-
-    public Collection<String> GetClosest(String text){
+    @Override
+    public Collection<String> getClosest(String text){
+        System.out.println("getting closest lexical value for : " + text);
         Collection<String> stringToReturn = new ArrayList<>();
         String biggerText = stringTree.ceiling(text);
         String smallerText = stringTree.floor(text);
@@ -49,17 +52,16 @@ public class ClosestByLexicalAnalyzer implements IStringAnalayzer {
         else{
             stringToReturn = null;
         }
+
+        System.out.println("Closest lexical value for " + text + " is " + stringToReturn);
         return stringToReturn;
 
     }
-    public Collection<String> GetClosestByValue(String text)
-    {
-        return null;//todo
-    }
-    public void UpdateData(String text)
-    {
+    @Override
+    public void updateData(String text){
         stringTree.add(text);
     }
+
 
 
 }

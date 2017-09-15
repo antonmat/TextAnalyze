@@ -5,9 +5,9 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.BodyHandler;
-import test.project1.StringAnalyzers.IStringAnalayzer;
-import test.project1.StringAnalyzers.StringAnalyzersFactory;
-
+import test.project1.stringanalyzers.IDataAnalyzer;
+import test.project1.stringanalyzers.StringAnalyzersFactory;
+import test.project1.Constants.AnalyzerType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,21 +15,21 @@ import java.util.Map;
 public class Server extends AbstractVerticle {
 
 	private Router router;
-	private Collection<IStringAnalayzer> stringAnalyzers = new StringAnalyzersFactory().getAnalyzers();
+	private Collection<IDataAnalyzer<String>> stringAnalyzers = new StringAnalyzersFactory().getAllAnalyzers();
 
 		private void analyze(RoutingContext routingContext) {
 
 		try {
-			final String text = routingContext.getBodyAsJson().getValue("text").toString();
-			Map<String, Collection<String>> stringAnalysisResult = new HashMap<>();
+			final String text = routingContext.getBodyAsJson().getValue(Constants.TEXT_KEY).toString();
+			Map<AnalyzerType, Collection<String>> stringAnalysisResult = new HashMap<>();
 			stringAnalyzers.stream().forEach((stringAnalyzer) -> {
-				stringAnalysisResult.put(stringAnalyzer.GetName(),stringAnalyzer.GetClosest(text));
+				stringAnalysisResult.put(stringAnalyzer.getType(),stringAnalyzer.getClosest(text));
 			});
 			routingContext.response()
 					.setStatusCode(201)
 					.putHeader("content-type", "application/json; charset=utf-8")
 					.end(Json.encodePrettily(stringAnalysisResult));
-			routingContext.put("text",text);
+			routingContext.put(Constants.TEXT_KEY,text);
 			routingContext.next();
 		}catch (DecodeException e){
 			routingContext.response()
@@ -37,9 +37,9 @@ public class Server extends AbstractVerticle {
 		}
 	}
 	private void addData(RoutingContext routingContext) {
-		System.out.println(routingContext.getBodyAsJson().getValue("text").toString());
+		System.out.println(routingContext.getBodyAsJson().getValue(Constants.TEXT_KEY).toString());
 		stringAnalyzers.stream().forEach((stringAnalyzer) -> {
-			stringAnalyzer.UpdateData(routingContext.get("text"));
+			stringAnalyzer.updateData(routingContext.get(Constants.TEXT_KEY));
 		});
 	}
 

@@ -1,17 +1,18 @@
-package test.project1.StringAnalyzers;
+package test.project1.stringanalyzers.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.TreeMap;
+import test.project1.Constants.AnalyzerType;
+import test.project1.stringanalyzers.IDataAnalyzer;
+
+import java.util.*;
 
 import static java.lang.StrictMath.abs;
 
-public class ClosestByValue implements IStringAnalayzer {
-    private TreeMap<Integer,Collection<String>> stringMap = new TreeMap<>();
+public class ClosestByValue implements IDataAnalyzer<String> {
+    private TreeMap<Integer,Set<String>> stringMap = new TreeMap<>();
     final String StringAnalyzerName = "Value";
 
-    private Collection<String> CompareStringsByValues(Integer sumOfText, Integer biggerValue, Integer smallerValue) {
-        Collection<String> stringToReturn = new ArrayList<>();
+    private Set<String> CompareStringsByValues(Integer sumOfText, Integer biggerValue, Integer smallerValue) {
+        Set<String> stringToReturn;
 
         int ValueComparedToBigger = biggerValue-sumOfText;
         int ValueComparedToSmaller = sumOfText -smallerValue;
@@ -31,11 +32,15 @@ public class ClosestByValue implements IStringAnalayzer {
         System.out.println(text.toLowerCase().chars().sum());
         return text.toLowerCase().chars().map(ch->ch+1 -'a').sum();
     }
-    public String GetName() {
-        return StringAnalyzerName;
+    public AnalyzerType getType() {
+        return AnalyzerType.value;
     }
-    public Collection<String> GetClosest(String text) {
-        Collection<String> stringToReturn = new ArrayList<>() ;
+
+    @Override
+    public Collection<String> getClosest(String text) {
+        System.out.println("getting closest by value for : " + text);
+
+        Set<String> stringToReturn;
         Integer sumOfText = calculateStringValue(text);
         Integer smallerValue = stringMap.floorKey(sumOfText);
         Integer biggerValue = stringMap.ceilingKey(sumOfText);
@@ -52,17 +57,19 @@ public class ClosestByValue implements IStringAnalayzer {
         else{
             stringToReturn = null;
         }
+
+        System.out.println("Closest by value for " + text + " is " + stringToReturn);
         return stringToReturn;
 
     }
-
-    public void UpdateData(String text) {
+    @Override
+    public void updateData(String text) {
         Integer sumOfText = calculateStringValue(text);
-        Collection<String> stringsPerKey;
+        Set<String> stringsPerKey;
         stringsPerKey =stringMap.get(sumOfText);
         if (stringsPerKey == null)
         {
-            stringsPerKey = new ArrayList<>();
+            stringsPerKey = new HashSet<>();
             stringsPerKey.add(text);
             stringMap.put(sumOfText,stringsPerKey);
         }
